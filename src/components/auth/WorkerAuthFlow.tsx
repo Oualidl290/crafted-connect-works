@@ -57,31 +57,61 @@ export const WorkerAuthFlow: React.FC = () => {
         {/* Progress Indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-4 mb-4">
-            <div className={`flex items-center space-x-2 ${currentStep === 'phone' ? 'text-orange-600' : currentStep !== 'phone' ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`flex items-center space-x-2 ${
+              currentStep === 'phone' 
+                ? 'text-orange-600' 
+                : 'text-green-600'
+            }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'phone' ? 'bg-orange-100' : currentStep !== 'phone' ? 'bg-green-100' : 'bg-gray-100'
+                currentStep === 'phone' 
+                  ? 'bg-orange-100' 
+                  : 'bg-green-100'
               }`}>
-                {currentStep !== 'phone' ? '✓' : '1'}
+                {currentStep === 'phone' ? '1' : '✓'}
               </div>
               <span className="hidden sm:inline">Phone</span>
             </div>
             <div className="w-12 h-1 bg-gray-200 rounded">
-              <div className={`h-full rounded transition-all ${currentStep === 'identity' || currentStep === 'skills' ? 'bg-green-500 w-full' : currentStep === 'phone' ? 'bg-orange-500 w-0' : 'bg-gray-200 w-0'}`} />
+              <div className={`h-full rounded transition-all ${
+                currentStep === 'identity' || currentStep === 'skills' 
+                  ? 'bg-green-500 w-full' 
+                  : 'bg-gray-200 w-0'
+              }`} />
             </div>
-            <div className={`flex items-center space-x-2 ${currentStep === 'identity' ? 'text-orange-600' : currentStep === 'skills' ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`flex items-center space-x-2 ${
+              currentStep === 'identity' 
+                ? 'text-orange-600' 
+                : currentStep === 'skills' 
+                  ? 'text-green-600' 
+                  : 'text-gray-400'
+            }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'identity' ? 'bg-orange-100' : currentStep === 'skills' ? 'bg-green-100' : 'bg-gray-100'
+                currentStep === 'identity' 
+                  ? 'bg-orange-100' 
+                  : currentStep === 'skills' 
+                    ? 'bg-green-100' 
+                    : 'bg-gray-100'
               }`}>
                 {currentStep === 'skills' ? '✓' : '2'}
               </div>
               <span className="hidden sm:inline">Profile</span>
             </div>
             <div className="w-12 h-1 bg-gray-200 rounded">
-              <div className={`h-full rounded transition-all ${currentStep === 'skills' ? 'bg-orange-500 w-full' : 'bg-gray-200 w-0'}`} />
+              <div className={`h-full rounded transition-all ${
+                currentStep === 'skills' 
+                  ? 'bg-orange-500 w-full' 
+                  : 'bg-gray-200 w-0'
+              }`} />
             </div>
-            <div className={`flex items-center space-x-2 ${currentStep === 'skills' ? 'text-orange-600' : 'text-gray-400'}`}>
+            <div className={`flex items-center space-x-2 ${
+              currentStep === 'skills' 
+                ? 'text-orange-600' 
+                : 'text-gray-400'
+            }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'skills' ? 'bg-orange-100' : 'bg-gray-100'
+                currentStep === 'skills' 
+                  ? 'bg-orange-100' 
+                  : 'bg-gray-100'
               }`}>
                 3
               </div>
