@@ -9,16 +9,176 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      phone_verifications: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          otp_code: string
+          phone: string
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          otp_code: string
+          phone: string
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      skill_proofs: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_url: string
+          id: string
+          proof_type: Database["public"]["Enums"]["skill_proof_type"]
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_url: string
+          id?: string
+          proof_type: Database["public"]["Enums"]["skill_proof_type"]
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          worker_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_url?: string
+          id?: string
+          proof_type?: Database["public"]["Enums"]["skill_proof_type"]
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_proofs_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workers: {
+        Row: {
+          bio: string | null
+          city: string | null
+          created_at: string
+          facebook_reviews_url: string | null
+          full_name: string
+          google_my_business_url: string | null
+          id: string
+          id_document_url: string | null
+          identity_verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          identity_verified: boolean | null
+          is_licensed: boolean | null
+          job_count: number | null
+          phone: string
+          profile_image_url: string | null
+          selfie_url: string | null
+          telegram_link: string | null
+          trade: string | null
+          trusted_by_locals: boolean | null
+          updated_at: string
+          user_id: string
+          whatsapp_link: string | null
+          yelp_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          facebook_reviews_url?: string | null
+          full_name: string
+          google_my_business_url?: string | null
+          id?: string
+          id_document_url?: string | null
+          identity_verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          identity_verified?: boolean | null
+          is_licensed?: boolean | null
+          job_count?: number | null
+          phone: string
+          profile_image_url?: string | null
+          selfie_url?: string | null
+          telegram_link?: string | null
+          trade?: string | null
+          trusted_by_locals?: boolean | null
+          updated_at?: string
+          user_id: string
+          whatsapp_link?: string | null
+          yelp_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          facebook_reviews_url?: string | null
+          full_name?: string
+          google_my_business_url?: string | null
+          id?: string
+          id_document_url?: string | null
+          identity_verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          identity_verified?: boolean | null
+          is_licensed?: boolean | null
+          job_count?: number | null
+          phone?: string
+          profile_image_url?: string | null
+          selfie_url?: string | null
+          telegram_link?: string | null
+          trade?: string | null
+          trusted_by_locals?: boolean | null
+          updated_at?: string
+          user_id?: string
+          whatsapp_link?: string | null
+          yelp_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      skill_proof_type:
+        | "certificate"
+        | "license"
+        | "work_photo"
+        | "work_pdf"
+        | "testimonial"
+      verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +293,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      skill_proof_type: [
+        "certificate",
+        "license",
+        "work_photo",
+        "work_pdf",
+        "testimonial",
+      ],
+      verification_status: ["pending", "verified", "rejected"],
+    },
   },
 } as const
