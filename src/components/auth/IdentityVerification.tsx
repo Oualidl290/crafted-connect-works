@@ -35,8 +35,9 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
     setError('');
 
     try {
-      // First, sign up the user with phone as email (temporary)
-      const tempEmail = `${phone.replace(/\D/g, '')}@crafted.temp`;
+      // Create a valid email format using the phone number
+      const phoneDigits = phone.replace(/\D/g, '');
+      const tempEmail = `${phoneDigits}@crafted.example.com`;
       const tempPassword = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
