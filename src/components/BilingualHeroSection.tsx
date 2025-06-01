@@ -79,14 +79,16 @@ export const BilingualHeroSection = () => {
                 {text.primaryCTA}
               </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="border-2 border-stone-300 hover:border-orange-300 text-stone-700 hover:text-orange-700 px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-3 min-w-[200px] bg-white/80 backdrop-blur-sm"
-            >
-              <MapPin className="h-5 w-5" />
-              {text.secondaryCTA}
-            </Button>
+            <Link to="/search">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-2 border-stone-300 hover:border-orange-300 text-stone-700 hover:text-orange-700 px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-3 min-w-[200px] bg-white/80 backdrop-blur-sm"
+              >
+                <MapPin className="h-5 w-5" />
+                {text.secondaryCTA}
+              </Button>
+            </Link>
           </div>
           
           {/* Trust indicators */}

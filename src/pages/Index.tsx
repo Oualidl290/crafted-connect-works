@@ -15,11 +15,17 @@ const IndexContent = () => {
   const headerText = {
     ar: {
       brandName: "كرافتد",
-      joinButton: "انضم كحَرَفي"
+      joinButton: "انضم كحَرَفي",
+      searchServices: "البحث عن خدمة",
+      clientDashboard: "لوحة الزبون",
+      workerDashboard: "لوحة الحَرَفي"
     },
     fr: {
       brandName: "Crafted", 
-      joinButton: "Rejoindre comme Pro"
+      joinButton: "Rejoindre comme Pro",
+      searchServices: "Rechercher Services",
+      clientDashboard: "Tableau Client",
+      workerDashboard: "Tableau Artisan"
     }
   };
 
@@ -39,6 +45,26 @@ const IndexContent = () => {
             </div>
             <div className={`flex items-center gap-4 ${isArabic ? 'space-x-reverse' : ''}`}>
               <LanguageToggle />
+              
+              {/* Navigation Links */}
+              <Link to="/search">
+                <Button variant="outline" size="sm">
+                  {text.searchServices}
+                </Button>
+              </Link>
+              
+              <Link to="/client-dashboard">
+                <Button variant="outline" size="sm">
+                  {text.clientDashboard}
+                </Button>
+              </Link>
+              
+              <Link to="/worker-dashboard">
+                <Button variant="outline" size="sm">
+                  {text.workerDashboard}
+                </Button>
+              </Link>
+              
               <Link to="/worker-auth">
                 <Button className="bg-orange-600 hover:bg-orange-700 text-white">
                   {text.joinButton}
