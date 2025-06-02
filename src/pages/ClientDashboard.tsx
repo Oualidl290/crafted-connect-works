@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LanguageToggle, LanguageProvider, useLanguage } from "@/components/LanguageToggle";
 import { Link } from "react-router-dom";
-import { Wrench, Calendar, Star, Message, Heart, Bell, User, MapPin } from "lucide-react";
+import { Wrench, Calendar, Star, MessageCircle, Heart, Bell, User, MapPin } from "lucide-react";
 
 const ClientDashboardContent = () => {
   const { isArabic } = useLanguage();
@@ -203,7 +202,7 @@ const ClientDashboardContent = () => {
                     <>
                       <Link to={`/chat/${booking.id}`}>
                         <Button size="sm" variant="outline">
-                          <Message className="h-3 w-3 mr-1" />
+                          <MessageCircle className="h-3 w-3 mr-1" />
                           {text.chatWith}
                         </Button>
                       </Link>

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LanguageToggle, LanguageProvider, useLanguage } from "@/components/LanguageToggle";
 import { Link, useParams } from "react-router-dom";
-import { Wrench, MapPin, Star, Calendar, Camera, Message } from "lucide-react";
+import { Wrench, MapPin, Star, Calendar, Camera, MessageCircle } from "lucide-react";
 
 const WorkerProfileContent = () => {
   const { isArabic } = useLanguage();
@@ -15,7 +15,6 @@ const WorkerProfileContent = () => {
     ar: {
       experience: "الخبرة",
       skills: "المهارات",
-      reviews: "التقييمات",
       gallery: "معرض الأعمال",
       bookNow: "احجز الآن",
       sendMessage: "إرسال رسالة",
@@ -26,6 +25,7 @@ const WorkerProfileContent = () => {
       available: "متاح",
       description: "كهربائي محترف مع خبرة 8 سنوات في جميع أنواع الأعمال الكهربائية. متخصص في التركيبات المنزلية والصناعية.",
       skillsList: ["تركيب كهربائي", "صيانة", "كاميرات مراقبة", "إضاءة LED"],
+      reviewsTitle: "التقييمات",
       reviews: [
         {
           name: "محمد الأمين",
@@ -44,7 +44,6 @@ const WorkerProfileContent = () => {
     fr: {
       experience: "Expérience",
       skills: "Compétences",
-      reviews: "Avis",
       gallery: "Galerie",
       bookNow: "Réserver",
       sendMessage: "Envoyer message",
@@ -55,6 +54,7 @@ const WorkerProfileContent = () => {
       available: "Disponible",
       description: "Électricien professionnel avec 8 ans d'expérience dans tous types de travaux électriques. Spécialisé dans les installations résidentielles et industrielles.",
       skillsList: ["Installation électrique", "Maintenance", "Caméras de surveillance", "Éclairage LED"],
+      reviewsTitle: "Avis",
       reviews: [
         {
           name: "Mohamed Amine",
@@ -128,7 +128,7 @@ const WorkerProfileContent = () => {
                       <div className="flex items-center space-x-1">
                         <Star className="h-4 w-4 text-yellow-500 fill-current" />
                         <span className="font-medium">{workerData.rating}</span>
-                        <span className="text-gray-500">({workerData.totalReviews} {text.reviews})</span>
+                        <span className="text-gray-500">({workerData.totalReviews} {text.reviewsTitle})</span>
                       </div>
                     </div>
                     
@@ -175,7 +175,7 @@ const WorkerProfileContent = () => {
             {/* Reviews */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4">{text.reviews}</h3>
+                <h3 className="text-xl font-semibold mb-4">{text.reviewsTitle}</h3>
                 <div className="space-y-4">
                   {text.reviews.map((review, index) => (
                     <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
@@ -231,7 +231,7 @@ const WorkerProfileContent = () => {
                   
                   <Link to="/chat" className="block">
                     <Button variant="outline" className="w-full" size="lg">
-                      <Message className="h-4 w-4 mr-2" />
+                      <MessageCircle className="h-4 w-4 mr-2" />
                       {text.sendMessage}
                     </Button>
                   </Link>

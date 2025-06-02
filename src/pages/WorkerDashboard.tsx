@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LanguageToggle, LanguageProvider, useLanguage } from "@/components/LanguageToggle";
 import { Link } from "react-router-dom";
-import { Wrench, Calendar, Star, Message, DollarSign, CheckCircle, X, Edit, TrendingUp } from "lucide-react";
+import { Wrench, Calendar, Star, MessageCircle, DollarSign, CheckCircle, X, Edit, TrendingUp } from "lucide-react";
 
 const WorkerDashboardContent = () => {
   const { isArabic } = useLanguage();
@@ -33,7 +32,6 @@ const WorkerDashboardContent = () => {
       thisWeek: "هذا الأسبوع",
       totalEarnings: "إجمالي الأرباح",
       pendingPayments: "مدفوعات معلقة",
-      completedJobs: "أعمال مكتملة",
       avgRating: "متوسط التقييم",
       available: "متاح",
       busy: "مشغول",
@@ -61,7 +59,7 @@ const WorkerDashboardContent = () => {
           status: "active"
         }
       ],
-      reviews: [
+      workerReviews: [
         {
           id: "1",
           client: "فاطمة الزهراء",
@@ -127,7 +125,7 @@ const WorkerDashboardContent = () => {
           status: "active"
         }
       ],
-      reviews: [
+      workerReviews: [
         {
           id: "1",
           client: "Fatima Zahra",
@@ -227,7 +225,7 @@ const WorkerDashboardContent = () => {
                       <>
                         <Link to={`/chat/${request.id}`}>
                           <Button size="sm" variant="outline">
-                            <Message className="h-3 w-3 mr-1" />
+                            <MessageCircle className="h-3 w-3 mr-1" />
                             {text.chatWith}
                           </Button>
                         </Link>
@@ -310,7 +308,7 @@ const WorkerDashboardContent = () => {
       </div>
 
       <div className="space-y-4">
-        {text.reviews.map((review) => (
+        {text.workerReviews.map((review) => (
           <Card key={review.id}>
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
