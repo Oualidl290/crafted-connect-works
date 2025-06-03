@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Camera, FileText, User } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, User, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,6 +13,30 @@ interface IdentityVerificationProps {
   phone: string;
   onVerificationComplete: (workerId: string) => void;
 }
+
+const TRADE_OPTIONS = [
+  'Plumber',
+  'Electrician',
+  'Carpenter',
+  'Painter',
+  'Tiler',
+  'Mason',
+  'Welder',
+  'HVAC Technician',
+  'Gardener',
+  'Cleaner',
+  'Handyman',
+  'Mechanic',
+  'Roofer',
+  'Locksmith',
+  'Glazier',
+  'Flooring Specialist',
+  'Kitchen Installer',
+  'Bathroom Fitter',
+  'Solar Panel Installer',
+  'Security System Installer',
+  'Other'
+];
 
 export const IdentityVerification: React.FC<IdentityVerificationProps> = ({ 
   phone, 
@@ -68,14 +93,34 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
 
       if (workerError) throw workerError;
 
+      // Create initial trust score record
+      const { error: trustScoreError } = await supabase
+        .from('trust_scores')
+        .insert({
+          worker_id: workerData.id,
+          overall_score: 0,
+          identity_score: 0,
+          skill_score: 0,
+          reputation_score: 0,
+          reliability_score: 0,
+          total_jobs: 0,
+          completed_jobs: 0,
+          average_rating: 0,
+          last_calculated: new Date().toISOString()
+        });
+
+      if (trustScoreError) {
+        console.warn('Failed to create trust score record:', trustScoreError);
+      }
+
       toast({
         title: "Profile Created",
-        description: "Your worker profile has been created successfully!",
+        description: `Welcome ${fullName}! Your worker profile has been created successfully.`,
       });
 
       onVerificationComplete(workerData.id);
     } catch (err: any) {
-      console.error('Identity verification error:', err);
+      console.error('Profile creation error:', err);
       setError(err.message || 'Failed to create profile');
     } finally {
       setIsLoading(false);
@@ -89,7 +134,7 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
           <User className="w-8 h-8 text-blue-600" />
         </div>
         <CardTitle className="text-2xl font-bold">Create Your Profile</CardTitle>
-        <p className="text-gray-600">Tell us about yourself and your trade</p>
+        <p className="text-gray-600">Tell us about yourself to get started on Crafted</p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -108,7 +153,7 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
             <label className="text-sm font-medium">City *</label>
             <Input
               type="text"
-              placeholder="San Francisco"
+              placeholder="Casablanca"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               disabled={isLoading}
@@ -117,14 +162,19 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Trade/Profession *</label>
-          <Input
-            type="text"
-            placeholder="Plumber, Electrician, Carpenter, etc."
-            value={trade}
-            onChange={(e) => setTrade(e.target.value)}
-            disabled={isLoading}
-          />
+          <label className="text-sm font-medium">Your Trade/Profession *</label>
+          <Select value={trade} onValueChange={setTrade} disabled={isLoading}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select your profession" />
+            </SelectTrigger>
+            <SelectContent>
+              {TRADE_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
@@ -139,13 +189,13 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
           />
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start space-x-3">
-            <Camera className="w-5 h-5 text-amber-600 mt-0.5" />
+            <Briefcase className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <h4 className="font-medium text-amber-800">Next: Identity Verification</h4>
-              <p className="text-sm text-amber-700 mt-1">
-                After creating your profile, you'll be asked to upload a photo ID and selfie for verification.
+              <h4 className="font-medium text-blue-800">Ready to Start</h4>
+              <p className="text-sm text-blue-700 mt-1">
+                Once your profile is created, you'll be able to connect with clients and showcase your skills.
               </p>
             </div>
           </div>

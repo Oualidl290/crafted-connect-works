@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { PhoneVerification } from './PhoneVerification';
-import { SkillProofUpload } from './SkillProofUpload';
+import { IdentityVerification } from './IdentityVerification';
 
-type AuthStep = 'phone' | 'skills' | 'complete';
+type AuthStep = 'phone' | 'info' | 'complete';
 
 export const WorkerAuthFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<AuthStep>('phone');
@@ -12,13 +12,11 @@ export const WorkerAuthFlow: React.FC = () => {
 
   const handlePhoneVerified = (phone: string) => {
     setVerifiedPhone(phone);
-    // Create a temporary worker ID for skill uploads
-    const tempWorkerId = `temp_${phone.replace(/\D/g, '')}`;
-    setWorkerId(tempWorkerId);
-    setCurrentStep('skills');
+    setCurrentStep('info');
   };
 
-  const handleSkillsComplete = () => {
+  const handleInfoComplete = (workerId: string) => {
+    setWorkerId(workerId);
     setCurrentStep('complete');
   };
 
@@ -35,7 +33,7 @@ export const WorkerAuthFlow: React.FC = () => {
           </div>
           <h1 className="text-3xl font-bold text-stone-900">Welcome to Crafted!</h1>
           <p className="text-gray-600">
-            Your profile is being reviewed. You'll be notified once verification is complete.
+            Your profile has been created successfully. You can now start connecting with clients.
           </p>
           <button 
             onClick={() => window.location.href = '/'}
@@ -70,24 +68,30 @@ export const WorkerAuthFlow: React.FC = () => {
             </div>
             <div className="w-12 h-1 bg-gray-200 rounded">
               <div className={`h-full rounded transition-all ${
-                currentStep === 'skills' 
+                currentStep === 'info' 
                   ? 'bg-orange-500 w-full' 
+                  : currentStep === 'complete'
+                  ? 'bg-green-500 w-full'
                   : 'bg-gray-200 w-0'
               }`} />
             </div>
             <div className={`flex items-center space-x-2 ${
-              currentStep === 'skills' 
+              currentStep === 'info' 
                 ? 'text-orange-600' 
+                : currentStep === 'complete'
+                ? 'text-green-600'
                 : 'text-gray-400'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'skills' 
+                currentStep === 'info' 
                   ? 'bg-orange-100' 
+                  : currentStep === 'complete'
+                  ? 'bg-green-100'
                   : 'bg-gray-100'
               }`}>
-                2
+                {currentStep === 'complete' ? '✓' : '2'}
               </div>
-              <span className="hidden sm:inline">Skills</span>
+              <span className="hidden sm:inline">Info</span>
             </div>
           </div>
         </div>
@@ -97,10 +101,10 @@ export const WorkerAuthFlow: React.FC = () => {
           <PhoneVerification onVerificationComplete={handlePhoneVerified} />
         )}
         
-        {currentStep === 'skills' && (
-          <SkillProofUpload 
-            workerId={workerId} 
-            onComplete={handleSkillsComplete} 
+        {currentStep === 'info' && (
+          <IdentityVerification 
+            phone={verifiedPhone} 
+            onVerificationComplete={handleInfoComplete} 
           />
         )}
       </div>
