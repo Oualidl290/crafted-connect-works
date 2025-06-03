@@ -13,10 +13,10 @@ interface TrustBadgeProps {
 
 export const TrustBadge = ({ score, size = 'md', showLabel = true, className }: TrustBadgeProps) => {
   const getTrustLevel = (score: number) => {
-    if (score >= 85) return { level: 'Elite', color: 'bg-green-500', icon: Award };
-    if (score >= 70) return { level: 'Verified Pro', color: 'bg-blue-500', icon: CheckCircle };
+    if (score >= 85) return { level: 'Elite', color: 'bg-emerald-600', icon: Award };
+    if (score >= 70) return { level: 'Verified Pro', color: 'bg-blue-600', icon: CheckCircle };
     if (score >= 50) return { level: 'Trusted', color: 'bg-orange-500', icon: Star };
-    return { level: 'Basic', color: 'bg-gray-500', icon: Shield };
+    return { level: 'New', color: 'bg-gray-500', icon: Shield };
   };
 
   const { level, color, icon: Icon } = getTrustLevel(score);
@@ -37,7 +37,7 @@ export const TrustBadge = ({ score, size = 'md', showLabel = true, className }: 
     <Badge 
       className={cn(
         color, 
-        'text-white border-0',
+        'text-white border-0 font-medium',
         sizeClasses[size],
         className
       )}
