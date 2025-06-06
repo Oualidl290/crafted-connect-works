@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_approvals: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["approval_status"] | null
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          worker_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_approvals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_approvals_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       background_checks: {
         Row: {
           check_type: string
@@ -49,6 +94,86 @@ export type Database = {
             columns: ["worker_id"]
             isOneToOne: false
             referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          chat_id: string | null
+          client_id: string
+          created_at: string | null
+          id: string
+          location_address: string | null
+          location_coords: unknown | null
+          notes: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
+          scheduled_time: string | null
+          service_id: string | null
+          status: Database["public"]["Enums"]["booking_status"] | null
+          total_amount: number | null
+          updated_at: string | null
+          worker_id: string
+        }
+        Insert: {
+          chat_id?: string | null
+          client_id: string
+          created_at?: string | null
+          id?: string
+          location_address?: string | null
+          location_coords?: unknown | null
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          scheduled_time?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_amount?: number | null
+          updated_at?: string | null
+          worker_id: string
+        }
+        Update: {
+          chat_id?: string | null
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          location_address?: string | null
+          location_coords?: unknown | null
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          scheduled_time?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_amount?: number | null
+          updated_at?: string | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_bookings_chat_id"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
             referencedColumns: ["id"]
           },
         ]
@@ -103,6 +228,55 @@ export type Database = {
           },
         ]
       }
+      chats: {
+        Row: {
+          booking_id: string | null
+          client_id: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          worker_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          client_id: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          worker_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_profiles: {
         Row: {
           address: string | null
@@ -144,6 +318,42 @@ export type Database = {
           verification_status?: string | null
         }
         Relationships: []
+      }
+      favorites: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          id: string
+          worker_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          id?: string
+          worker_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       identity_documents: {
         Row: {
@@ -322,6 +532,86 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          chat_id: string
+          id: string
+          is_offer: boolean | null
+          offer_data: Json | null
+          sender_id: string
+          sent_at: string | null
+          text: string
+        }
+        Insert: {
+          chat_id: string
+          id?: string
+          is_offer?: boolean | null
+          offer_data?: Json | null
+          sender_id: string
+          sent_at?: string | null
+          text: string
+        }
+        Update: {
+          chat_id?: string
+          id?: string
+          is_offer?: boolean | null
+          offer_data?: Json | null
+          sender_id?: string
+          sent_at?: string | null
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phone_verifications: {
         Row: {
           created_at: string
@@ -404,6 +694,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reviews_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          base_price: number
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          price_type: Database["public"]["Enums"]["price_type"]
+          title_ar: string
+          title_fr: string | null
+          updated_at: string | null
+          worker_id: string
+        }
+        Insert: {
+          base_price: number
+          category: Database["public"]["Enums"]["service_category"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price_type?: Database["public"]["Enums"]["price_type"]
+          title_ar: string
+          title_fr?: string | null
+          updated_at?: string | null
+          worker_id: string
+        }
+        Update: {
+          base_price?: number
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price_type?: Database["public"]["Enums"]["price_type"]
+          title_ar?: string
+          title_fr?: string | null
+          updated_at?: string | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_worker_id_fkey"
             columns: ["worker_id"]
             isOneToOne: false
             referencedRelation: "workers"
@@ -564,25 +904,130 @@ export type Database = {
           },
         ]
       }
+      user_reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number
+          reviewer_id: string
+          worker_id: string
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating: number
+          reviewer_id: string
+          worker_id: string
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number
+          reviewer_id?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_reviews_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string
+          id: string
+          is_verified: boolean | null
+          language_preference: string | null
+          location_city: string | null
+          location_coords: unknown | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          id: string
+          is_verified?: boolean | null
+          language_preference?: string | null
+          location_city?: string | null
+          location_coords?: unknown | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_verified?: boolean | null
+          language_preference?: string | null
+          location_city?: string | null
+          location_coords?: unknown | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       workers: {
         Row: {
+          availability_calendar: Json | null
           bio: string | null
           city: string | null
           created_at: string
           facebook_reviews_url: string | null
           full_name: string
+          gallery_images: string[] | null
           google_my_business_url: string | null
+          hourly_rate: number | null
           id: string
           id_document_url: string | null
           identity_verification_status:
             | Database["public"]["Enums"]["verification_status"]
             | null
           identity_verified: boolean | null
+          is_approved: boolean | null
           is_licensed: boolean | null
           job_count: number | null
           phone: string
+          profile_completion: number | null
           profile_image_url: string | null
+          rating_avg: number | null
+          rating_count: number | null
           selfie_url: string | null
+          skills: Database["public"]["Enums"]["skill_type"][] | null
           telegram_link: string | null
           trade: string | null
           trusted_by_locals: boolean | null
@@ -592,23 +1037,31 @@ export type Database = {
           yelp_url: string | null
         }
         Insert: {
+          availability_calendar?: Json | null
           bio?: string | null
           city?: string | null
           created_at?: string
           facebook_reviews_url?: string | null
           full_name: string
+          gallery_images?: string[] | null
           google_my_business_url?: string | null
+          hourly_rate?: number | null
           id?: string
           id_document_url?: string | null
           identity_verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
           identity_verified?: boolean | null
+          is_approved?: boolean | null
           is_licensed?: boolean | null
           job_count?: number | null
           phone: string
+          profile_completion?: number | null
           profile_image_url?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
           selfie_url?: string | null
+          skills?: Database["public"]["Enums"]["skill_type"][] | null
           telegram_link?: string | null
           trade?: string | null
           trusted_by_locals?: boolean | null
@@ -618,23 +1071,31 @@ export type Database = {
           yelp_url?: string | null
         }
         Update: {
+          availability_calendar?: Json | null
           bio?: string | null
           city?: string | null
           created_at?: string
           facebook_reviews_url?: string | null
           full_name?: string
+          gallery_images?: string[] | null
           google_my_business_url?: string | null
+          hourly_rate?: number | null
           id?: string
           id_document_url?: string | null
           identity_verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
           identity_verified?: boolean | null
+          is_approved?: boolean | null
           is_licensed?: boolean | null
           job_count?: number | null
           phone?: string
+          profile_completion?: number | null
           profile_image_url?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
           selfie_url?: string | null
+          skills?: Database["public"]["Enums"]["skill_type"][] | null
           telegram_link?: string | null
           trade?: string | null
           trusted_by_locals?: boolean | null
@@ -658,14 +1119,74 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      is_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      approval_status: "pending" | "approved" | "rejected"
+      booking_status: "pending" | "confirmed" | "completed" | "canceled"
+      notification_type:
+        | "new_booking"
+        | "review_received"
+        | "message"
+        | "admin_notice"
+      payment_status: "unpaid" | "paid" | "cash"
+      price_type: "per_hour" | "fixed"
+      service_category:
+        | "electrical"
+        | "plumbing"
+        | "carpentry"
+        | "painting"
+        | "tiling"
+        | "construction"
+        | "welding"
+        | "hvac"
+        | "gardening"
+        | "cleaning"
+        | "maintenance"
+        | "automotive"
+        | "roofing"
+        | "locksmith"
+        | "glazing"
+        | "flooring"
+        | "kitchen"
+        | "bathroom"
+        | "solar"
+        | "security"
       skill_proof_type:
         | "certificate"
         | "license"
         | "work_photo"
         | "work_pdf"
         | "testimonial"
+      skill_type:
+        | "كهربائي"
+        | "سباك"
+        | "نجار"
+        | "دهان"
+        | "بلاط"
+        | "بناء"
+        | "لحام"
+        | "تكييف"
+        | "بستنة"
+        | "تنظيف"
+        | "صيانة عامة"
+        | "ميكانيكي"
+        | "أسقف"
+        | "أقفال"
+        | "زجاج"
+        | "أرضيات"
+        | "مطابخ"
+        | "حمامات"
+        | "طاقة شمسية"
+        | "أمن"
+      user_role: "client" | "worker" | "admin"
       verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
@@ -782,6 +1303,38 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      approval_status: ["pending", "approved", "rejected"],
+      booking_status: ["pending", "confirmed", "completed", "canceled"],
+      notification_type: [
+        "new_booking",
+        "review_received",
+        "message",
+        "admin_notice",
+      ],
+      payment_status: ["unpaid", "paid", "cash"],
+      price_type: ["per_hour", "fixed"],
+      service_category: [
+        "electrical",
+        "plumbing",
+        "carpentry",
+        "painting",
+        "tiling",
+        "construction",
+        "welding",
+        "hvac",
+        "gardening",
+        "cleaning",
+        "maintenance",
+        "automotive",
+        "roofing",
+        "locksmith",
+        "glazing",
+        "flooring",
+        "kitchen",
+        "bathroom",
+        "solar",
+        "security",
+      ],
       skill_proof_type: [
         "certificate",
         "license",
@@ -789,6 +1342,29 @@ export const Constants = {
         "work_pdf",
         "testimonial",
       ],
+      skill_type: [
+        "كهربائي",
+        "سباك",
+        "نجار",
+        "دهان",
+        "بلاط",
+        "بناء",
+        "لحام",
+        "تكييف",
+        "بستنة",
+        "تنظيف",
+        "صيانة عامة",
+        "ميكانيكي",
+        "أسقف",
+        "أقفال",
+        "زجاج",
+        "أرضيات",
+        "مطابخ",
+        "حمامات",
+        "طاقة شمسية",
+        "أمن",
+      ],
+      user_role: ["client", "worker", "admin"],
       verification_status: ["pending", "verified", "rejected"],
     },
   },

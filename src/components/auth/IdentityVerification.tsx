@@ -62,18 +62,41 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
     try {
       // Create a valid email format using the phone number
       const phoneDigits = phone.replace(/\D/g, '');
-      const tempEmail = `${phoneDigits}@crafted.example.com`;
+      const tempEmail = `${phoneDigits}@crafted.temp.com`;
       const tempPassword = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
 
+      // Create user account with metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: tempEmail,
         password: tempPassword,
+        options: {
+          data: {
+            full_name: fullName,
+            role: 'worker'
+          }
+        }
       });
 
       if (authError) throw authError;
 
       if (!authData.user) {
         throw new Error('Failed to create user account');
+      }
+
+      // Wait a moment for the trigger to create the user profile
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Update the user profile with additional information
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({
+          phone,
+          role: 'worker'
+        })
+        .eq('id', authData.user.id);
+
+      if (userUpdateError) {
+        console.error('User update error:', userUpdateError);
       }
 
       // Create worker profile
@@ -86,7 +109,11 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
           city,
           trade,
           bio: bio || null,
-          identity_verification_status: 'pending'
+          identity_verification_status: 'pending',
+          is_approved: false,
+          profile_completion: 60,
+          rating_avg: 0.0,
+          rating_count: 0
         })
         .select()
         .single();
@@ -122,6 +149,11 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
     } catch (err: any) {
       console.error('Profile creation error:', err);
       setError(err.message || 'Failed to create profile');
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to create profile',
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +212,7 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
         <div className="space-y-2">
           <label className="text-sm font-medium">Bio (Optional)</label>
           <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
             rows={3}
             placeholder="Tell potential clients about your experience and expertise..."
             value={bio}
@@ -210,7 +242,7 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
         <Button 
           onClick={handleSubmit} 
           disabled={isLoading || !fullName || !city || !trade} 
-          className="w-full"
+          className="w-full bg-orange-600 hover:bg-orange-700"
         >
           {isLoading ? (
             <>

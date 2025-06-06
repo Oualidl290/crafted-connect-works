@@ -36,10 +36,10 @@ export const WorkerAuthFlow: React.FC = () => {
             Your profile has been created successfully. You can now start connecting with clients.
           </p>
           <button 
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/worker-dashboard'}
             className="bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
           >
-            Continue to Platform
+            Go to Dashboard
           </button>
         </div>
       </div>
