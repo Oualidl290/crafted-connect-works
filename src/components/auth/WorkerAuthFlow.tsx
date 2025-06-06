@@ -68,7 +68,7 @@ export const WorkerAuthFlow: React.FC = () => {
             </div>
             <div className="w-12 h-1 bg-gray-200 rounded">
               <div className={`h-full rounded transition-all ${
-                currentStep !== 'phone'
+                currentStep === 'info'
                   ? 'bg-orange-500 w-full' 
                   : 'bg-gray-200 w-0'
               }`} />
@@ -76,18 +76,14 @@ export const WorkerAuthFlow: React.FC = () => {
             <div className={`flex items-center space-x-2 ${
               currentStep === 'info' 
                 ? 'text-orange-600' 
-                : currentStep === 'complete'
-                ? 'text-green-600'
                 : 'text-gray-400'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 currentStep === 'info' 
                   ? 'bg-orange-100' 
-                  : currentStep === 'complete'
-                  ? 'bg-green-100'
                   : 'bg-gray-100'
               }`}>
-                {currentStep === 'complete' ? '✓' : '2'}
+                2
               </div>
               <span className="hidden sm:inline">Info</span>
             </div>
