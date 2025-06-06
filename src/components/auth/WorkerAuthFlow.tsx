@@ -62,13 +62,13 @@ export const WorkerAuthFlow: React.FC = () => {
                   ? 'bg-orange-100' 
                   : 'bg-green-100'
               }`}>
-                {currentStep !== 'phone' ? '✓' : '1'}
+                {currentStep === 'phone' ? '1' : '✓'}
               </div>
               <span className="hidden sm:inline">Phone</span>
             </div>
             <div className="w-12 h-1 bg-gray-200 rounded">
               <div className={`h-full rounded transition-all ${
-                currentStep === 'info' || currentStep === 'complete'
+                currentStep !== 'phone'
                   ? 'bg-orange-500 w-full' 
                   : 'bg-gray-200 w-0'
               }`} />
