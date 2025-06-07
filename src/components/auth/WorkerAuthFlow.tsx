@@ -1,21 +1,14 @@
 
 import React, { useState } from 'react';
-import { PhoneVerification } from './PhoneVerification';
-import { IdentityVerification } from './IdentityVerification';
+import { ConversationalRegistration } from './ConversationalRegistration';
 
-type AuthStep = 'phone' | 'info' | 'complete';
+type AuthStep = 'registration' | 'complete';
 
 export const WorkerAuthFlow: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<AuthStep>('phone');
-  const [verifiedPhone, setVerifiedPhone] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<AuthStep>('registration');
   const [workerId, setWorkerId] = useState<string>('');
 
-  const handlePhoneVerified = (phone: string) => {
-    setVerifiedPhone(phone);
-    setCurrentStep('info');
-  };
-
-  const handleInfoComplete = (workerId: string) => {
+  const handleRegistrationComplete = (workerId: string) => {
     setWorkerId(workerId);
     setCurrentStep('complete');
   };
@@ -31,15 +24,15 @@ export const WorkerAuthFlow: React.FC = () => {
               </svg>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-stone-900">Welcome to Crafted!</h1>
+          <h1 className="text-3xl font-bold text-stone-900">مرحباً بك في Crafted!</h1>
           <p className="text-gray-600">
-            Your profile has been created successfully. You can now start connecting with clients.
+            تم إنشاء ملفك الشخصي بنجاح. يمكنك الآن البدء في التواصل مع العملاء.
           </p>
           <button 
             onClick={() => window.location.href = '/worker-dashboard'}
             className="bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
           >
-            Go to Dashboard
+            الذهاب إلى لوحة التحكم
           </button>
         </div>
       </div>
@@ -49,58 +42,14 @@ export const WorkerAuthFlow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50/20 flex items-center justify-center p-6">
       <div className="w-full max-w-4xl">
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-4 mb-4">
-            <div className={`flex items-center space-x-2 ${
-              currentStep === 'phone' 
-                ? 'text-orange-600' 
-                : 'text-green-600'
-            }`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'phone' 
-                  ? 'bg-orange-100' 
-                  : 'bg-green-100'
-              }`}>
-                {currentStep === 'phone' ? '1' : '✓'}
-              </div>
-              <span className="hidden sm:inline">Phone</span>
-            </div>
-            <div className="w-12 h-1 bg-gray-200 rounded">
-              <div className={`h-full rounded transition-all ${
-                currentStep === 'info'
-                  ? 'bg-orange-500 w-full' 
-                  : 'bg-gray-200 w-0'
-              }`} />
-            </div>
-            <div className={`flex items-center space-x-2 ${
-              currentStep === 'info' 
-                ? 'text-orange-600' 
-                : 'text-gray-400'
-            }`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === 'info' 
-                  ? 'bg-orange-100' 
-                  : 'bg-gray-100'
-              }`}>
-                2
-              </div>
-              <span className="hidden sm:inline">Info</span>
-            </div>
-          </div>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-stone-900 mb-2">انضم إلى Crafted</h1>
+          <p className="text-lg text-gray-600">منصة المهنيين المغاربة المتخصصين</p>
         </div>
 
-        {/* Current Step Content */}
-        {currentStep === 'phone' && (
-          <PhoneVerification onVerificationComplete={handlePhoneVerified} />
-        )}
-        
-        {currentStep === 'info' && (
-          <IdentityVerification 
-            phone={verifiedPhone} 
-            onVerificationComplete={handleInfoComplete} 
-          />
-        )}
+        {/* Registration Component */}
+        <ConversationalRegistration onRegistrationComplete={handleRegistrationComplete} />
       </div>
     </div>
   );
