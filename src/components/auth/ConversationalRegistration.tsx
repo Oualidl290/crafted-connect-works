@@ -38,19 +38,30 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
     setError('');
 
     try {
+      console.log('Sending text to extract-profile function:', userText.trim());
+      
       const response = await supabase.functions.invoke('extract-profile', {
         body: { userText: userText.trim() }
       });
 
+      console.log('Response from extract-profile function:', response);
+
       if (response.error) {
+        console.error('Function invocation error:', response.error);
         throw new Error(response.error.message || 'Failed to process text');
       }
 
-      if (!response.data?.success) {
-        throw new Error(response.data?.error || 'Failed to extract profile information');
+      if (!response.data) {
+        throw new Error('No response data received from the function');
       }
 
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to extract profile information');
+      }
+
+      console.log('Successfully extracted data:', response.data.data);
       setExtractedData(response.data.data);
+      
       toast({
         title: "تم استخراج المعلومات بنجاح",
         description: "يرجى مراجعة المعلومات المستخرجة وتأكيدها",
@@ -58,10 +69,11 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
     } catch (err: any) {
       console.error('Profile extraction error:', err);
-      setError(err.message || 'فشل في معالجة النص. يرجى المحاولة مرة أخرى.');
+      const errorMessage = err.message || 'فشل في معالجة النص. يرجى المحاولة مرة أخرى.';
+      setError(errorMessage);
       toast({
         title: "خطأ",
-        description: err.message || 'فشل في معالجة النص',
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
