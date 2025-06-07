@@ -60,10 +60,14 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
     setError('');
 
     try {
+      console.log('Starting worker profile creation process...');
+      
       // Create a valid email format using the phone number
       const phoneDigits = phone.replace(/\D/g, '');
       const tempEmail = `${phoneDigits}@crafted.temp.com`;
       const tempPassword = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+
+      console.log('Creating auth user with email:', tempEmail);
 
       // Create user account with metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -77,16 +81,56 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw authError;
+      }
 
       if (!authData.user) {
+        console.error('No user data returned from auth');
         throw new Error('Failed to create user account');
       }
 
-      // Wait a moment for the trigger to create the user profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Auth user created successfully:', authData.user.id);
 
-      // Update the user profile with additional information
+      // Wait a moment for the trigger to create the user profile
+      console.log('Waiting for user profile creation trigger...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Verify the user profile was created
+      console.log('Checking if user profile was created...');
+      const { data: userProfile, error: userCheckError } = await supabase
+        .from('users')
+        .select('id, role, full_name')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (userCheckError) {
+        console.error('Error checking user profile:', userCheckError);
+        console.log('Manually creating user profile...');
+        
+        // Try to create the user profile manually
+        const { error: manualUserError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email: tempEmail,
+            phone,
+            full_name: fullName,
+            role: 'worker'
+          });
+
+        if (manualUserError) {
+          console.error('Manual user creation error:', manualUserError);
+          throw new Error('Failed to create user profile');
+        }
+        console.log('User profile created manually');
+      } else {
+        console.log('User profile found:', userProfile);
+      }
+
+      // Update the user profile with phone number
+      console.log('Updating user profile with phone number...');
       const { error: userUpdateError } = await supabase
         .from('users')
         .update({
@@ -97,9 +141,11 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
 
       if (userUpdateError) {
         console.error('User update error:', userUpdateError);
+        // Don't throw here, just log the warning
       }
 
       // Create worker profile
+      console.log('Creating worker profile...');
       const { data: workerData, error: workerError } = await supabase
         .from('workers')
         .insert({
@@ -118,9 +164,15 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
         .select()
         .single();
 
-      if (workerError) throw workerError;
+      if (workerError) {
+        console.error('Worker creation error:', workerError);
+        throw workerError;
+      }
+
+      console.log('Worker profile created successfully:', workerData.id);
 
       // Create initial trust score record
+      console.log('Creating trust score record...');
       const { error: trustScoreError } = await supabase
         .from('trust_scores')
         .insert({
@@ -138,7 +190,10 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
 
       if (trustScoreError) {
         console.warn('Failed to create trust score record:', trustScoreError);
+        // Don't throw here, just log the warning
       }
+
+      console.log('Worker registration completed successfully');
 
       toast({
         title: "Profile Created",
@@ -148,10 +203,11 @@ export const IdentityVerification: React.FC<IdentityVerificationProps> = ({
       onVerificationComplete(workerData.id);
     } catch (err: any) {
       console.error('Profile creation error:', err);
-      setError(err.message || 'Failed to create profile');
+      const errorMessage = err.message || 'Failed to create profile';
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: err.message || 'Failed to create profile',
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
