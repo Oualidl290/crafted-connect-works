@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,10 +18,10 @@ serve(async (req) => {
   try {
     console.log('Extract-profile function called');
     
-    if (!openAIApiKey) {
-      console.error('OpenAI API key not found in environment');
+    if (!geminiApiKey) {
+      console.error('Gemini API key not found in environment');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        JSON.stringify({ error: 'Gemini API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -36,20 +36,9 @@ serve(async (req) => {
       );
     }
 
-    console.log('Making request to OpenAI API');
+    console.log('Making request to Gemini API');
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an intelligent registration assistant for a Moroccan freelance platform called "Mistrfix".
+    const prompt = `You are an intelligent registration assistant for a Moroccan freelance platform called "Mistrfix".
 
 Your job is to extract structured profile information from a short paragraph written in Arabic or Moroccan Darija. The user will describe themselves — their name, profession, city, and experience. Extract as much information as possible.
 
@@ -72,47 +61,59 @@ Expected output:
   "experience_years": 5
 }
 
-IMPORTANT: Return ONLY the JSON object, no additional text or formatting.`
-          },
-          {
-            role: 'user',
-            content: userText
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 500
+IMPORTANT: Return ONLY the JSON object, no additional text or formatting.
+
+User input: ${userText}`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 500,
+        }
       }),
     });
 
-    console.log('OpenAI response status:', response.status);
+    console.log('Gemini response status:', response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+      console.error('Gemini API error:', response.status, errorText);
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response data:', data);
+    console.log('Gemini response data:', data);
     
     if (data.error) {
-      console.error('OpenAI returned error:', data.error);
-      throw new Error(data.error.message || 'OpenAI API error');
+      console.error('Gemini returned error:', data.error);
+      throw new Error(data.error.message || 'Gemini API error');
     }
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid OpenAI response structure:', data);
-      throw new Error('Invalid response from OpenAI');
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('Invalid Gemini response structure:', data);
+      throw new Error('Invalid response from Gemini');
     }
 
-    const content = data.choices[0].message.content;
-    console.log('OpenAI content:', content);
+    const content = data.candidates[0].content.parts[0].text;
+    console.log('Gemini content:', content);
 
     let extractedData;
     try {
-      extractedData = JSON.parse(content.trim());
+      // Clean up the response text to extract just the JSON
+      const cleanContent = content.replace(/```json|```/g, '').trim();
+      extractedData = JSON.parse(cleanContent);
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', content);
+      console.error('Failed to parse Gemini response as JSON:', content);
       throw new Error('Failed to parse extracted data. Please try rephrasing your description.');
     }
 
