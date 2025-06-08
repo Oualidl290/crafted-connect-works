@@ -111,19 +111,19 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       if (authError) {
         console.error('Auth error:', authError);
-        throw authError;
+        throw new Error(`فشل في إنشاء حساب المستخدم: ${authError.message}`);
       }
 
       if (!authData.user) {
         console.error('No user data returned from auth');
-        throw new Error('Failed to create user account');
+        throw new Error('فشل في إنشاء حساب المستخدم - لم يتم إرجاع بيانات المستخدم');
       }
 
       console.log('Auth user created successfully:', authData.user.id);
 
       // Wait for the trigger to create the user profile
       console.log('Waiting for user profile creation trigger...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Verify the user profile was created
       console.log('Checking if user profile was created...');
@@ -131,11 +131,15 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
         .from('users')
         .select('id, role, full_name')
         .eq('id', authData.user.id)
-        .single();
+        .maybeSingle();
 
       if (userCheckError) {
         console.error('Error checking user profile:', userCheckError);
-        console.log('Manually creating user profile...');
+        throw new Error(`فشل في التحقق من إنشاء ملف المستخدم: ${userCheckError.message}`);
+      }
+
+      if (!userProfile) {
+        console.log('User profile not found, creating manually...');
         
         // Try to create the user profile manually
         const { error: manualUserError } = await supabase
@@ -149,7 +153,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
         if (manualUserError) {
           console.error('Manual user creation error:', manualUserError);
-          throw new Error('Failed to create user profile');
+          throw new Error(`فشل في إنشاء ملف المستخدم: ${manualUserError.message}`);
         }
         console.log('User profile created manually');
       } else {
@@ -180,7 +184,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       if (workerError) {
         console.error('Worker creation error:', workerError);
-        throw workerError;
+        throw new Error(`فشل في إنشاء ملف العامل: ${workerError.message}`);
       }
 
       console.log('Worker profile created successfully:', workerData.id);
@@ -204,6 +208,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       if (trustScoreError) {
         console.warn('Failed to create trust score record:', trustScoreError);
+        // Don't throw here as it's not critical for registration
       }
 
       console.log('Worker registration completed successfully');
