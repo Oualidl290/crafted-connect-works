@@ -1,16 +1,23 @@
 
 import React, { useState } from 'react';
 import { ConversationalRegistration } from './ConversationalRegistration';
+import { useNavigate } from 'react-router-dom';
 
 type AuthStep = 'registration' | 'complete';
 
 export const WorkerAuthFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<AuthStep>('registration');
   const [workerId, setWorkerId] = useState<string>('');
+  const navigate = useNavigate();
 
   const handleRegistrationComplete = (workerId: string) => {
     setWorkerId(workerId);
     setCurrentStep('complete');
+    
+    // Redirect to the worker profile page after a short delay
+    setTimeout(() => {
+      navigate(`/worker-profile/${workerId}`);
+    }, 3000);
   };
 
   if (currentStep === 'complete') {
@@ -26,14 +33,22 @@ export const WorkerAuthFlow: React.FC = () => {
           </div>
           <h1 className="text-3xl font-bold text-stone-900">مرحباً بك في Crafted!</h1>
           <p className="text-gray-600">
-            تم إنشاء ملفك الشخصي بنجاح. يمكنك الآن البدء في التواصل مع العملاء.
+            تم إنشاء ملفك الشخصي بنجاح. سيتم توجيهك إلى صفحة الملف الشخصي...
           </p>
-          <button 
-            onClick={() => window.location.href = '/worker-dashboard'}
-            className="bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
-          >
-            الذهاب إلى لوحة التحكم
-          </button>
+          <div className="flex space-x-3">
+            <button 
+              onClick={() => navigate(`/worker-profile/${workerId}`)}
+              className="bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+            >
+              عرض الملف الشخصي
+            </button>
+            <button 
+              onClick={() => navigate('/')}
+              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+            >
+              العودة للرئيسية
+            </button>
+          </div>
         </div>
       </div>
     );

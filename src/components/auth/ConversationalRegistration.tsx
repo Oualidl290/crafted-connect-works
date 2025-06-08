@@ -92,12 +92,12 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
       
       // Create a valid email format using timestamp
       const timestamp = Date.now();
-      const tempEmail = `worker_${timestamp}@crafted.temp.com`;
+      const tempEmail = `worker_${timestamp}@crafted.temp`;
       const tempPassword = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
 
       console.log('Creating auth user with email:', tempEmail);
 
-      // Create user account with metadata
+      // Create user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: tempEmail,
         password: tempPassword,
@@ -121,46 +121,26 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Auth user created successfully:', authData.user.id);
 
-      // Wait for the trigger to create the user profile
-      console.log('Waiting for user profile creation trigger...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Verify the user profile was created
-      console.log('Checking if user profile was created...');
-      const { data: userProfile, error: userCheckError } = await supabase
+      // Create user profile directly without relying on trigger
+      console.log('Creating user profile directly...');
+      const { error: userProfileError } = await supabase
         .from('users')
-        .select('id, role, full_name')
-        .eq('id', authData.user.id)
-        .maybeSingle();
+        .insert({
+          id: authData.user.id,
+          email: tempEmail,
+          full_name: extractedData.full_name,
+          role: 'worker'
+        });
 
-      if (userCheckError) {
-        console.error('Error checking user profile:', userCheckError);
-        throw new Error(`فشل في التحقق من إنشاء ملف المستخدم: ${userCheckError.message}`);
-      }
-
-      if (!userProfile) {
-        console.log('User profile not found, creating manually...');
-        
-        // Try to create the user profile manually
-        const { error: manualUserError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: tempEmail,
-            full_name: extractedData.full_name,
-            role: 'worker'
-          });
-
-        if (manualUserError) {
-          console.error('Manual user creation error:', manualUserError);
-          throw new Error(`فشل في إنشاء ملف المستخدم: ${manualUserError.message}`);
-        }
-        console.log('User profile created manually');
+      if (userProfileError) {
+        console.error('User profile creation error:', userProfileError);
+        // Don't throw here, continue to worker creation
+        console.log('Continuing despite user profile error...');
       } else {
-        console.log('User profile found:', userProfile);
+        console.log('User profile created successfully');
       }
 
-      // Create worker profile
+      // Create worker profile directly
       console.log('Creating worker profile...');
       const { data: workerData, error: workerError } = await supabase
         .from('workers')
@@ -189,26 +169,29 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Worker profile created successfully:', workerData.id);
 
-      // Create initial trust score record
-      console.log('Creating trust score record...');
-      const { error: trustScoreError } = await supabase
-        .from('trust_scores')
-        .insert({
-          worker_id: workerData.id,
-          overall_score: 10, // Starting score for basic info
-          identity_score: 0,
-          skill_score: extractedData.experience_years ? Math.min(15, extractedData.experience_years * 2) : 5,
-          reputation_score: 0,
-          reliability_score: 0,
-          total_jobs: 0,
-          completed_jobs: 0,
-          average_rating: 0,
-          last_calculated: new Date().toISOString()
-        });
+      // Create initial trust score record (optional)
+      try {
+        const { error: trustScoreError } = await supabase
+          .from('trust_scores')
+          .insert({
+            worker_id: workerData.id,
+            overall_score: 10, // Starting score for basic info
+            identity_score: 0,
+            skill_score: extractedData.experience_years ? Math.min(15, extractedData.experience_years * 2) : 5,
+            reputation_score: 0,
+            reliability_score: 0,
+            total_jobs: 0,
+            completed_jobs: 0,
+            average_rating: 0,
+            last_calculated: new Date().toISOString()
+          });
 
-      if (trustScoreError) {
-        console.warn('Failed to create trust score record:', trustScoreError);
-        // Don't throw here as it's not critical for registration
+        if (trustScoreError) {
+          console.warn('Failed to create trust score record:', trustScoreError);
+        }
+      } catch (trustError) {
+        console.warn('Trust score creation failed:', trustError);
+        // Continue regardless
       }
 
       console.log('Worker registration completed successfully');

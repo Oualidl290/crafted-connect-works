@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import WorkerAuth from "./pages/WorkerAuth";
 import ServiceSearch from "./pages/ServiceSearch";
 import WorkerProfile from "./pages/WorkerProfile";
+import WorkerProfileView from "./pages/WorkerProfileView";
 import BookingFlow from "./pages/BookingFlow";
 import ChatPage from "./pages/ChatPage";
 import ClientDashboard from "./pages/ClientDashboard";
@@ -35,6 +36,7 @@ const App: React.FC = () => (
             <Route path="/worker-auth" element={<WorkerAuth />} />
             <Route path="/search" element={<ServiceSearch />} />
             <Route path="/worker/:id" element={<WorkerProfile />} />
+            <Route path="/worker-profile/:id" element={<WorkerProfileView />} />
             <Route path="/booking" element={<BookingFlow />} />
             <Route path="/chat/:jobId?" element={<ChatPage />} />
             <Route path="/client-dashboard" element={<ClientDashboard />} />
