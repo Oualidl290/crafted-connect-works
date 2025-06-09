@@ -26,6 +26,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [error, setError] = useState('');
+  const [geminiResponse, setGeminiResponse] = useState<any>(null);
   const { toast } = useToast();
 
   const processUserText = async () => {
@@ -61,6 +62,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Successfully extracted data:', response.data.data);
       setExtractedData(response.data.data);
+      setGeminiResponse(response.data); // Store the full response for database
       
       toast({
         title: "تم استخراج المعلومات بنجاح",
@@ -169,6 +171,29 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Worker profile created successfully:', workerData.id);
 
+      // Store the extracted profile information
+      console.log('Storing extracted profile information...');
+      const { error: extractedProfileError } = await supabase
+        .from('extracted_profiles')
+        .insert({
+          worker_id: workerData.id,
+          original_text: userText.trim(),
+          extracted_full_name: extractedData.full_name,
+          extracted_profession: extractedData.profession,
+          extracted_city: extractedData.city,
+          extracted_experience_years: extractedData.experience_years || null,
+          extraction_confidence: 0.95, // Default high confidence for successful extractions
+          gemini_response: geminiResponse
+        });
+
+      if (extractedProfileError) {
+        console.error('Failed to store extracted profile:', extractedProfileError);
+        // Don't throw here as it's not critical for the main flow
+        console.log('Continuing despite extracted profile storage error...');
+      } else {
+        console.log('Extracted profile information stored successfully');
+      }
+
       // Create initial trust score record (optional)
       try {
         const { error: trustScoreError } = await supabase
@@ -220,6 +245,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
     setExtractedData(null);
     setUserText('');
     setError('');
+    setGeminiResponse(null);
   };
 
   return (

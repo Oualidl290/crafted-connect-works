@@ -319,6 +319,53 @@ export type Database = {
         }
         Relationships: []
       }
+      extracted_profiles: {
+        Row: {
+          created_at: string
+          extracted_city: string | null
+          extracted_experience_years: number | null
+          extracted_full_name: string | null
+          extracted_profession: string | null
+          extraction_confidence: number | null
+          gemini_response: Json | null
+          id: string
+          original_text: string
+          worker_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          extracted_city?: string | null
+          extracted_experience_years?: number | null
+          extracted_full_name?: string | null
+          extracted_profession?: string | null
+          extraction_confidence?: number | null
+          gemini_response?: Json | null
+          id?: string
+          original_text: string
+          worker_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          extracted_city?: string | null
+          extracted_experience_years?: number | null
+          extracted_full_name?: string | null
+          extracted_profession?: string | null
+          extraction_confidence?: number | null
+          gemini_response?: Json | null
+          id?: string
+          original_text?: string
+          worker_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extracted_profiles_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           client_id: string
