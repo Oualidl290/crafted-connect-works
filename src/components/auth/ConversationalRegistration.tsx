@@ -62,7 +62,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Successfully extracted data:', response.data.data);
       setExtractedData(response.data.data);
-      setGeminiResponse(response.data); // Store the full response for database
+      setGeminiResponse(response.data);
       
       toast({
         title: "تم استخراج المعلومات بنجاح",
@@ -92,14 +92,15 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
     try {
       console.log('Starting worker profile creation with extracted data:', extractedData);
       
-      // Create a valid email format using timestamp
+      // Generate unique identifiers
       const timestamp = Date.now();
-      const tempEmail = `worker_${timestamp}@crafted.temp`;
-      const tempPassword = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const tempEmail = `worker_${timestamp}_${randomSuffix}@crafted.temp`;
+      const tempPassword = `temp_${timestamp}_${randomSuffix}`;
 
       console.log('Creating auth user with email:', tempEmail);
 
-      // Create user account
+      // Step 1: Create authentication user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: tempEmail,
         password: tempPassword,
@@ -118,37 +119,54 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       if (!authData.user) {
         console.error('No user data returned from auth');
-        throw new Error('فشل في إنشاء حساب المستخدم - لم يتم إرجاع بيانات المستخدم');
+        throw new Error('فشل في إنشاء حساب المستخدم');
       }
 
-      console.log('Auth user created successfully:', authData.user.id);
+      const userId = authData.user.id;
+      console.log('Auth user created successfully:', userId);
 
-      // Create user profile directly without relying on trigger
-      console.log('Creating user profile directly...');
-      const { error: userProfileError } = await supabase
+      // Step 2: Wait a moment for any triggers to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Step 3: Check if user record exists, if not create it
+      let { data: existingUser, error: checkError } = await supabase
         .from('users')
-        .insert({
-          id: authData.user.id,
-          email: tempEmail,
-          full_name: extractedData.full_name,
-          role: 'worker'
-        });
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
 
-      if (userProfileError) {
-        console.error('User profile creation error:', userProfileError);
-        // Don't throw here, continue to worker creation
-        console.log('Continuing despite user profile error...');
-      } else {
-        console.log('User profile created successfully');
+      if (checkError) {
+        console.warn('Error checking user existence:', checkError);
       }
 
-      // Create worker profile directly
+      if (!existingUser) {
+        console.log('Creating user record manually...');
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            email: tempEmail,
+            full_name: extractedData.full_name,
+            role: 'worker'
+          });
+
+        if (userError) {
+          console.error('Error creating user record:', userError);
+          // Don't throw here, continue with worker creation
+        } else {
+          console.log('User record created successfully');
+        }
+      } else {
+        console.log('User record already exists');
+      }
+
+      // Step 4: Create worker profile
       console.log('Creating worker profile...');
       const { data: workerData, error: workerError } = await supabase
         .from('workers')
         .insert({
-          user_id: authData.user.id,
-          phone: `temp_${timestamp}`, // Temporary phone number
+          user_id: userId,
+          phone: `temp_${timestamp}`,
           full_name: extractedData.full_name,
           city: extractedData.city,
           trade: extractedData.profession,
@@ -171,36 +189,38 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
 
       console.log('Worker profile created successfully:', workerData.id);
 
-      // Store the extracted profile information
-      console.log('Storing extracted profile information...');
-      const { error: extractedProfileError } = await supabase
-        .from('extracted_profiles')
-        .insert({
-          worker_id: workerData.id,
-          original_text: userText.trim(),
-          extracted_full_name: extractedData.full_name,
-          extracted_profession: extractedData.profession,
-          extracted_city: extractedData.city,
-          extracted_experience_years: extractedData.experience_years || null,
-          extraction_confidence: 0.95, // Default high confidence for successful extractions
-          gemini_response: geminiResponse
-        });
+      // Step 5: Store extracted profile information
+      try {
+        console.log('Storing extracted profile information...');
+        const { error: extractedProfileError } = await supabase
+          .from('extracted_profiles')
+          .insert({
+            worker_id: workerData.id,
+            original_text: userText.trim(),
+            extracted_full_name: extractedData.full_name,
+            extracted_profession: extractedData.profession,
+            extracted_city: extractedData.city,
+            extracted_experience_years: extractedData.experience_years || null,
+            extraction_confidence: 0.95,
+            gemini_response: geminiResponse
+          });
 
-      if (extractedProfileError) {
-        console.error('Failed to store extracted profile:', extractedProfileError);
-        // Don't throw here as it's not critical for the main flow
-        console.log('Continuing despite extracted profile storage error...');
-      } else {
-        console.log('Extracted profile information stored successfully');
+        if (extractedProfileError) {
+          console.warn('Failed to store extracted profile:', extractedProfileError);
+        } else {
+          console.log('Extracted profile information stored successfully');
+        }
+      } catch (extractError) {
+        console.warn('Error storing extracted profile:', extractError);
       }
 
-      // Create initial trust score record (optional)
+      // Step 6: Create initial trust score
       try {
         const { error: trustScoreError } = await supabase
           .from('trust_scores')
           .insert({
             worker_id: workerData.id,
-            overall_score: 10, // Starting score for basic info
+            overall_score: 10,
             identity_score: 0,
             skill_score: extractedData.experience_years ? Math.min(15, extractedData.experience_years * 2) : 5,
             reputation_score: 0,
@@ -212,11 +232,12 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
           });
 
         if (trustScoreError) {
-          console.warn('Failed to create trust score record:', trustScoreError);
+          console.warn('Failed to create trust score:', trustScoreError);
+        } else {
+          console.log('Trust score created successfully');
         }
       } catch (trustError) {
-        console.warn('Trust score creation failed:', trustError);
-        // Continue regardless
+        console.warn('Error creating trust score:', trustError);
       }
 
       console.log('Worker registration completed successfully');
@@ -227,9 +248,10 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
       });
 
       onRegistrationComplete(workerData.id);
+
     } catch (err: any) {
       console.error('Profile creation error:', err);
-      const errorMessage = err.message || 'فشل في إنشاء الملف الشخصي';
+      const errorMessage = err.message || 'فشل في إنشاء الملف الشخصي. يرجى المحاولة مرة أخرى.';
       setError(errorMessage);
       toast({
         title: "خطأ",
