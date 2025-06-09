@@ -14,6 +14,7 @@ import BookingFlow from "./pages/BookingFlow";
 import ChatPage from "./pages/ChatPage";
 import ClientDashboard from "./pages/ClientDashboard";
 import WorkerDashboard from "./pages/WorkerDashboard";
+import NearbyWorkers from "./pages/NearbyWorkers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ const App: React.FC = () => (
             <Route path="/" element={<Index />} />
             <Route path="/worker-auth" element={<WorkerAuth />} />
             <Route path="/search" element={<ServiceSearch />} />
+            <Route path="/nearby" element={<NearbyWorkers />} />
             <Route path="/worker/:id" element={<WorkerProfile />} />
             <Route path="/worker-profile/:id" element={<WorkerProfileView />} />
             <Route path="/booking" element={<BookingFlow />} />
