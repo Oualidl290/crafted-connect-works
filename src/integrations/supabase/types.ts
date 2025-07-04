@@ -54,6 +54,83 @@ export type Database = {
           },
         ]
       }
+      admins: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          audience: Database["public"]["Enums"]["announcement_audience"] | null
+          created_at: string | null
+          id: string
+          message: string
+          title: string
+        }
+        Insert: {
+          audience?: Database["public"]["Enums"]["announcement_audience"] | null
+          created_at?: string | null
+          id?: string
+          message: string
+          title: string
+        }
+        Update: {
+          audience?: Database["public"]["Enums"]["announcement_audience"] | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string | null
+          data_id: string
+          id: string
+          table_name: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string | null
+          data_id: string
+          id?: string
+          table_name: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string | null
+          data_id?: string
+          id?: string
+          table_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       background_checks: {
         Row: {
           check_type: string
@@ -318,6 +395,35 @@ export type Database = {
           verification_status?: string | null
         }
         Relationships: []
+      }
+      clients_profile: {
+        Row: {
+          created_at: string | null
+          is_blocked: boolean | null
+          job_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          is_blocked?: boolean | null
+          job_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          is_blocked?: boolean | null
+          job_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_profile_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       extracted_profiles: {
         Row: {
@@ -686,6 +792,45 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          reason: string
+          reported_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          reason: string
+          reported_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          reason?: string
+          reported_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reported_id_fkey"
+            columns: ["reported_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           client_id: string | null
@@ -1036,8 +1181,10 @@ export type Database = {
           id: string
           is_verified: boolean | null
           language_preference: string | null
+          latitude: number | null
           location_city: string | null
           location_coords: unknown | null
+          longitude: number | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
@@ -1050,8 +1197,10 @@ export type Database = {
           id: string
           is_verified?: boolean | null
           language_preference?: string | null
+          latitude?: number | null
           location_city?: string | null
           location_coords?: unknown | null
+          longitude?: number | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -1064,8 +1213,10 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           language_preference?: string | null
+          latitude?: number | null
           location_city?: string | null
           location_coords?: unknown | null
+          longitude?: number | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -1182,6 +1333,50 @@ export type Database = {
           yelp_url?: string | null
         }
         Relationships: []
+      }
+      workers_profile: {
+        Row: {
+          approved: boolean | null
+          bio: string | null
+          created_at: string | null
+          experience_years: number | null
+          flagged_count: number | null
+          portfolio_url: string | null
+          profession: string
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean | null
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          flagged_count?: number | null
+          portfolio_url?: string | null
+          profession: string
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          approved?: boolean | null
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          flagged_count?: number | null
+          portfolio_url?: string | null
+          profession?: string
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workers_profile_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1803,7 +1998,7 @@ export type Database = {
         Args:
           | { tbl_oid: unknown; use_typmod?: boolean }
           | { use_typmod?: boolean }
-        Returns: number
+        Returns: string
       }
       postgis_addbbox: {
         Args: { "": unknown }
@@ -3022,6 +3217,7 @@ export type Database = {
       }
     }
     Enums: {
+      announcement_audience: "all" | "worker" | "client"
       approval_status: "pending" | "approved" | "rejected"
       booking_status: "pending" | "confirmed" | "completed" | "canceled"
       notification_type:
@@ -3204,6 +3400,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      announcement_audience: ["all", "worker", "client"],
       approval_status: ["pending", "approved", "rejected"],
       booking_status: ["pending", "confirmed", "completed", "canceled"],
       notification_type: [
