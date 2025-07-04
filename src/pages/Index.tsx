@@ -17,6 +17,10 @@ const IndexContent = () => {
       brandName: "كرافتد",
       joinButton: "انضم كحَرَفي",
       searchServices: "البحث عن خدمة",
+      jobs: "الوظائف",
+      workers: "الحرفيين", 
+      messages: "الرسائل",
+      login: "تسجيل الدخول",
       clientDashboard: "لوحة الزبون",
       workerDashboard: "لوحة الحَرَفي"
     },
@@ -24,6 +28,10 @@ const IndexContent = () => {
       brandName: "Crafted", 
       joinButton: "Rejoindre comme Pro",
       searchServices: "Rechercher Services",
+      jobs: "Emplois",
+      workers: "Artisans",
+      messages: "Messages", 
+      login: "Se connecter",
       clientDashboard: "Tableau Client",
       workerDashboard: "Tableau Artisan"
     }
@@ -47,27 +55,27 @@ const IndexContent = () => {
               <LanguageToggle />
               
               {/* Navigation Links */}
-              <Link to="/search">
+              <Link to="/jobs">
                 <Button variant="outline" size="sm">
-                  {text.searchServices}
+                  {text.jobs}
                 </Button>
               </Link>
               
-              <Link to="/client-dashboard">
+              <Link to="/workers">
                 <Button variant="outline" size="sm">
-                  {text.clientDashboard}
+                  {text.workers}
                 </Button>
               </Link>
               
-              <Link to="/worker-dashboard">
+              <Link to="/messages">
                 <Button variant="outline" size="sm">
-                  {text.workerDashboard}
+                  {text.messages}
                 </Button>
               </Link>
               
-              <Link to="/worker-auth">
+              <Link to="/auth">
                 <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                  {text.joinButton}
+                  {text.login}
                 </Button>
               </Link>
             </div>

@@ -24,9 +24,6 @@ interface Job {
   status: string;
   created_at: string;
   client_id: string;
-  users?: {
-    full_name: string;
-  };
 }
 
 const Jobs = () => {
@@ -65,17 +62,12 @@ const Jobs = () => {
     try {
       const { data, error } = await supabase
         .from('jobs')
-        .select(`
-          *,
-          users (
-            full_name
-          )
-        `)
+        .select('*')
         .eq('status', 'posted')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setJobs((data as Job[]) || []);
+      setJobs(data || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       toast({ title: "خطأ", description: "فشل في تحميل الوظائف", variant: "destructive" });
@@ -386,11 +378,7 @@ const Jobs = () => {
                     <span>{new Date(job.created_at).toLocaleDateString('ar-MA')}</span>
                   </div>
                   
-                  {job.users?.full_name && (
-                    <div className="text-sm text-stone-500">
-                      بواسطة: {job.users.full_name}
-                    </div>
-                  )}
+                  {/* Remove the user display for now */}
                   
                   <div className="flex space-x-2 pt-4">
                     <Button size="sm" className="flex-1 bg-orange-600 hover:bg-orange-700">

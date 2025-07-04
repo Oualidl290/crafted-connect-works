@@ -24,9 +24,6 @@ interface Worker {
     location_city: string;
     avatar_url: string;
   };
-  trust_scores?: {
-    overall_score: number;
-  }[];
 }
 
 const WorkerSearch = () => {
@@ -58,22 +55,12 @@ const WorkerSearch = () => {
     try {
       const { data, error } = await supabase
         .from('workers_profile')
-        .select(`
-          *,
-          users (
-            full_name,
-            location_city,
-            avatar_url
-          ),
-          trust_scores (
-            overall_score
-          )
-        `)
+        .select('*')
         .eq('approved', true)
         .order('rating', { ascending: false });
 
       if (error) throw error;
-      setWorkers((data as Worker[]) || []);
+      setWorkers(data || []);
     } catch (error) {
       console.error('Error fetching workers:', error);
       toast({ title: "خطأ", description: "فشل في تحميل الحرفيين", variant: "destructive" });
@@ -138,13 +125,12 @@ const WorkerSearch = () => {
   const filteredWorkers = workers.filter(worker => {
     const matchesSearch = 
       worker.profession.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      worker.users?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.bio.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesProfession = professionFilter === '' || worker.profession === professionFilter;
-    const matchesLocation = locationFilter === '' || worker.users?.location_city === locationFilter;
+    // Remove location filter for now since we don't have user data
     
-    return matchesSearch && matchesProfession && matchesLocation;
+    return matchesSearch && matchesProfession;
   });
 
   if (loading) {
@@ -252,19 +238,19 @@ const WorkerSearch = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWorkers.map((worker) => (
-              <Card key={worker.id} className="hover:shadow-lg transition-shadow">
+              <Card key={worker.user_id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-4">
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={worker.users?.avatar_url} />
+                      <AvatarImage src="" />
                       <AvatarFallback>
-                        {worker.users?.full_name?.charAt(0) || 'ح'}
+                        ح
                       </AvatarFallback>
                     </Avatar>
                     
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">{worker.users?.full_name}</CardTitle>
+                        <CardTitle className="text-lg">{worker.profession}</CardTitle>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -297,18 +283,11 @@ const WorkerSearch = () => {
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
                       <span className="text-sm font-medium">{worker.rating.toFixed(1)}</span>
                     </div>
-                    
-                    {worker.trust_scores?.[0] && (
-                      <TrustBadge 
-                        score={worker.trust_scores[0].overall_score} 
-                        size="sm" 
-                      />
-                    )}
                   </div>
                   
                   <div className="flex items-center space-x-2 text-sm text-stone-500">
                     <MapPin className="h-4 w-4" />
-                    <span>{worker.users?.location_city}</span>
+                    <span>المغرب</span>
                   </div>
                   
                   {worker.experience_years > 0 && (
