@@ -160,8 +160,8 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
         console.log('User record already exists');
       }
 
-      // Step 4: Create worker profile
-      console.log('Creating worker profile...');
+      // Step 4: Create worker record
+      console.log('Creating worker record...');
       const { data: workerData, error: workerError } = await supabase
         .from('workers')
         .insert({
@@ -187,9 +187,32 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
         throw new Error(`فشل في إنشاء ملف العامل: ${workerError.message}`);
       }
 
-      console.log('Worker profile created successfully:', workerData.id);
+      console.log('Worker record created successfully:', workerData.id);
 
-      // Step 5: Store extracted profile information
+      // Step 5: Create worker profile
+      console.log('Creating worker profile...');
+      const { error: workerProfileError } = await supabase
+        .from('workers_profile')
+        .insert({
+          user_id: userId,
+          profession: extractedData.profession,
+          bio: extractedData.experience_years ? 
+            `خبرة ${extractedData.experience_years} سنوات في ${extractedData.profession}` : 
+            `متخصص في ${extractedData.profession}`,
+          experience_years: extractedData.experience_years || 0,
+          rating: 0.0,
+          approved: false,
+          flagged_count: 0,
+          portfolio_url: null
+        });
+
+      if (workerProfileError) {
+        console.warn('Failed to create worker profile:', workerProfileError);
+      } else {
+        console.log('Worker profile created successfully');
+      }
+
+      // Step 6: Store extracted profile information
       try {
         console.log('Storing extracted profile information...');
         const { error: extractedProfileError } = await supabase
@@ -214,7 +237,7 @@ export const ConversationalRegistration: React.FC<ConversationalRegistrationProp
         console.warn('Error storing extracted profile:', extractError);
       }
 
-      // Step 6: Create initial trust score
+      // Step 7: Create initial trust score
       try {
         const { error: trustScoreError } = await supabase
           .from('trust_scores')
